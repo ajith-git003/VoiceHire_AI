@@ -49,3 +49,5 @@ pnpm-debug.log*
 
 # Project specific
 runpod.toml
+interview_config.json
+.claude/
