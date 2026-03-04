@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Interview Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- ── Aurora background ── -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+    <div class="aurora-blob aurora-blob-4"></div>
+  </div>
+
+  <!-- ── Geometric square grid ── -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ── Noise grain overlay (Retell-style tactile texture) ── -->
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <div class="app">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#040c06" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </div>
+        <span class="logo-text">InterviewCoach</span>
+      </div>
+      <!-- Controls visible only while interview is active -->
+      <div class="header-controls" id="header-controls">
+        <button id="mic-btn" class="btn-mic" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <span id="mic-label">Mic On</span>
+        </button>
+        <button id="disconnect-btn" class="btn-end">End &amp; Get Feedback</button>
+      </div>
+    </header>
+
+    <!-- ── Main ── -->
+    <main class="main">
+
+      <!-- Left: Glowing AI orb -->
+      <div class="orb-area">
+        <div class="orb-wrap" id="orb-wrap">
+          <div class="ring ring-4"></div>
+          <div class="ring ring-3"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-1"></div>
+          <!-- Orb core -->
+          <div class="orb-core" id="orb-core">
+            <div class="orb-default-avatar" id="orb-avatar">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <!-- Status label -->
+        <div class="orb-status" id="orb-status">
+          <span class="orb-status-dot" id="orb-status-dot"></span>
+          <span id="orb-status-text">Ready to start</span>
+        </div>
+      </div>
+
+      <!-- Right: Panel (pre-interview / chat) -->
+      <div class="right-panel">
+
+        <!-- PRE-INTERVIEW PANEL -->
+        <div id="pre-panel">
+          <h2 class="pre-title">Before starting the interview,</h2>
+          <ol class="pre-list">
+            <li>This session will be conducted by an AI interviewer tailored to the job description you provide.</li>
+            <li>Speak naturally and take time to think — the AI listens for natural pauses before moving on.</li>
+            <li>Feel free to ask clarifying questions at any point during the interview.</li>
+            <li>A long pause signals that you have finished your answer and the interviewer will proceed.</li>
+          </ol>
+
+          <div class="config-section">
+            <div class="config-field">
+              <label class="config-label">Interviewer Style</label>
+              <select id="bot-nature-select" class="config-select">
+                <option value="friendly">😊  Friendly</option>
+                <option value="decent" selected>💼  Professional</option>
+                <option value="strict">⚡  Strict</option>
+              </select>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Experience Level</label>
+              <select id="experience-level-select" class="config-select">
+                <option value="fresher">🌱  Fresher — No experience</option>
+                <option value="0_2">🚀  0–2 years — Junior</option>
+                <option value="3_5" selected>⚙️  3–5 years — Mid-level</option>
+                <option value="5_10">🔥  5–10 years — Senior</option>
+                <option value="10_plus">🏆  10+ years — Lead / Principal</option>
+              </select>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Role Preset <span class="optional">(auto-fills job description)</span></label>
+              <select id="role-preset-select" class="config-select">
+                <option value="">✏️  Custom — I'll write my own JD</option>
+                <option value="software_engineer">💻  Software Engineer</option>
+                <option value="frontend_developer">🖥️  Frontend Developer</option>
+                <option value="backend_developer">⚙️  Backend Developer</option>
+                <option value="data_scientist">📊  Data Scientist</option>
+                <option value="hr_manager">👥  HR Manager</option>
+                <option value="product_manager">📋  Product Manager</option>
+                <option value="performance_marketing">📣  Performance Marketing</option>
+                <option value="devops_engineer">🛠️  DevOps Engineer</option>
+                <option value="fullstack_developer">🔗  Full Stack Developer</option>
+                <option value="ml_engineer">🤖  ML Engineer</option>
+                <option value="ui_ux_designer">🎨  UI/UX Designer</option>
+                <option value="business_analyst">📈  Business Analyst</option>
+              </select>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Job Description <span class="req" id="jd-req">*</span><span class="preset-badge" id="preset-badge" style="display:none">auto-filled</span></label>
+              <textarea
+                id="jd-textarea"
+                class="config-textarea"
+                placeholder="Paste the job description here… The AI will tailor interview questions to this role."
+              ></textarea>
+              <span class="config-hint" id="jd-hint">Minimum 50 characters required</span>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Resume <span class="optional">(optional — enables experience-based questions)</span></label>
+              <input type="file" id="resume-file-input" accept=".pdf,.txt" hidden />
+              <div class="resume-dropzone" id="resume-dropzone">
+                <div class="resume-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <span class="resume-drop-text">Click to upload or drag &amp; drop</span>
+                <span class="resume-drop-hint">PDF or TXT</span>
+              </div>
+              <div class="resume-status" id="resume-status"></div>
+            </div>
+          </div>
+
+          <button id="connect-btn" class="btn-start">
+            <span>Sounds good, start interview</span>
+          </button>
+        </div>
+
+        <!-- CHAT PANEL (during interview) -->
+        <div id="chat-panel">
+          <div class="chat-title-row">
+            <span class="chat-title">Live Session</span>
+            <span class="chat-live-dot"></span>
+          </div>
+          <div class="chat-messages" id="conversation-log"></div>
+          <div class="thinking-row" id="thinking-row">
+            <div class="thinking-bubble">
+              <span class="t-dot"></span>
+              <span class="t-dot"></span>
+              <span class="t-dot"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ── User self-view camera (floating bottom-left) ── -->
+    <div class="self-cam-card" id="self-cam-card">
+      <video id="self-cam-video" autoplay muted playsinline></video>
+      <div class="self-cam-label">You</div>
+    </div>
+
+    <!-- ── Feedback Overlay ── -->
+    <div class="feedback-overlay" id="feedback-overlay">
+      <div class="feedback-card">
+        <div class="feedback-header">
+          <div class="feedback-header-left">
+            <div class="feedback-icon">📊</div>
+            <div>
+              <h2 class="feedback-title">Interview Feedback</h2>
+              <p class="feedback-subtitle">AI-powered performance analysis</p>
+            </div>
+          </div>
+          <button class="feedback-close" id="feedback-close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="feedback-loading" id="feedback-loading">
+          <div class="feedback-spinner"></div>
+          <p>Analyzing your interview…</p>
+        </div>
+        <div class="feedback-body" id="feedback-body"></div>
+      </div>
+    </div>
+
+    <!-- ── User speaking wave (bottom-center) ── -->
+    <div class="listening-bar" id="listening-bar">
+      <div class="listen-waves">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <span>Listening…</span>
+    </div>
+
+  </div>
+
+  <audio id="bot-audio" autoplay playsinline style="display:none"></audio>
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>
