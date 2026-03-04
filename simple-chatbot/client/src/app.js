@@ -269,7 +269,6 @@ class InterviewCoach {
     } catch (_) { /* not all browsers expose AudioContext — safe to ignore */ }
 
     await this.saveConfig();
-    await this.startSelfCam();
 
     try {
       const transport = await createTransport('smallwebrtc');
@@ -552,7 +551,6 @@ class InterviewCoach {
     this.micBtn.disabled = true;
     this.setOrbStatus('', 'Ready to start');
     this.resetOrbToAvatar();
-    this.stopSelfCam();
 
     if (this.endingInterview) {
       this.endingInterview = false;
