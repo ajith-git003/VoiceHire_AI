@@ -1,0 +1,8 @@
+pipecat-ai[cartesia,deepgram,google,groq,openai,runner,silero,webrtc]>=0.0.102
+pipecatcloud
+pypdf>=4.0.0
+python-dotenv
+Pillow
+uvicorn
+fastapi
+groq
