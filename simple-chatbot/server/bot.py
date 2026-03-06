@@ -403,28 +403,6 @@ async def bot(runner_args: RunnerArguments):
 
 
 if __name__ == "__main__":
-    import threading
     from pipecat.runner.run import main
-    from config_server import run_config_server
-    
-    def run_config_server_thread():
-        import asyncio
-
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        try:
-            loop.run_until_complete(run_config_server())
-        except Exception as e:
-            logger.error("config server error: {e}")
-
-    config_server_thread = threading.Thread(
-            target=run_config_server_thread,
-            daemon=True,
-            name="ConfigServer"
-        )
-
-    config_server_thread.start()
-    logger.info("Config server thread started")
 
     main()
