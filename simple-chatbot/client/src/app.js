@@ -271,7 +271,7 @@ class InterviewCoach {
     await this.saveConfig();
 
     try {
-      const transport = await createTransport('smallwebrtc');
+      const transport = await createTransport('daily');
 
       this.client = new PipecatClient({
         transport,
@@ -290,7 +290,7 @@ class InterviewCoach {
 
       this.setupRTVIEvents();
       this.setupAudioVideo();
-      await this.client.connect(TRANSPORT_CONFIG['smallwebrtc']);
+      await this.client.connect(TRANSPORT_CONFIG['daily']);
     } catch (err) {
       console.error('Connect failed:', err);
       this.connectBtn.disabled = false;

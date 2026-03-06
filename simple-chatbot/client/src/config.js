@@ -69,11 +69,7 @@ export async function createTransport(transportType) {
 
     case 'smallwebrtc': {
       const { SmallWebRTCTransport } = await import('@pipecat-ai/small-webrtc-transport');
-      const wsUrl = botStartUrl
-        .replace('/start', '')
-        .replace('https://', 'wss://')
-        .replace('http://', 'ws://');
-      return new SmallWebRTCTransport(wsUrl);
+      return new SmallWebRTCTransport();
     }
 
     default:
