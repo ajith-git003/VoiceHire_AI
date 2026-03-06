@@ -290,7 +290,13 @@ class InterviewCoach {
 
       this.setupRTVIEvents();
       this.setupAudioVideo();
-      await this.client.connect(TRANSPORT_CONFIG['daily']);
+
+      const cfg = TRANSPORT_CONFIG['daily'];
+      if (this.client.startBotAndConnect) {
+        await this.client.startBotAndConnect(cfg);
+      } else {
+        await this.client.connect(cfg);
+      }
     } catch (err) {
       console.error('Connect failed:', err);
       this.connectBtn.disabled = false;
