@@ -403,6 +403,86 @@ async def bot(runner_args: RunnerArguments):
 
 
 if __name__ == "__main__":
-    from pipecat.runner.run import main
+    import argparse
+    import time
+    import httpx
+    import uvicorn
+    from fastapi import FastAPI, BackgroundTasks, Request
+    from fastapi.responses import JSONResponse
+    from fastapi.middleware.cors import CORSMiddleware
+    from pipecat.transports.daily.transport import DailyParams, DailyTransport
 
-    main()
+    app = FastAPI()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @app.get("/")
+    async def health():
+        return {"status": "ok"}
+
+    @app.post("/start")
+    async def start_endpoint(background_tasks: BackgroundTasks):
+        daily_api_key = os.getenv("DAILY_API_KEY", "")
+        if not daily_api_key:
+            logger.error("DAILY_API_KEY not set")
+            return JSONResponse({"error": "DAILY_API_KEY not configured"}, status_code=500)
+
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                # Create Daily room
+                r = await client.post(
+                    "https://api.daily.co/v1/rooms",
+                    headers={"Authorization": f"Bearer {daily_api_key}"},
+                    json={"properties": {"start_video_off": True, "exp": int(time.time()) + 3600}},
+                )
+                if r.status_code != 200:
+                    logger.error(f"Room creation failed: {r.text}")
+                    return JSONResponse({"error": "Room creation failed", "detail": r.text}, status_code=500)
+                room = r.json()
+                room_url = room["url"]
+                room_name = room["name"]
+                logger.info(f"Created Daily room: {room_url}")
+
+                # Bot token (owner)
+                r = await client.post(
+                    "https://api.daily.co/v1/meeting-tokens",
+                    headers={"Authorization": f"Bearer {daily_api_key}"},
+                    json={"properties": {"room_name": room_name, "is_owner": True}},
+                )
+                bot_token = r.json().get("token", "")
+
+                # User token
+                r = await client.post(
+                    "https://api.daily.co/v1/meeting-tokens",
+                    headers={"Authorization": f"Bearer {daily_api_key}"},
+                    json={"properties": {"room_name": room_name, "is_owner": False}},
+                )
+                user_token = r.json().get("token", "")
+
+        except Exception as e:
+            logger.error(f"Error setting up Daily room: {e}")
+            return JSONResponse({"error": str(e)}, status_code=500)
+
+        transport = DailyTransport(
+            room_url, bot_token, "AI Interviewer",
+            params=DailyParams(
+                audio_in_enabled=True,
+                audio_out_enabled=True,
+                video_out_enabled=True,
+                video_out_width=1024,
+                video_out_height=576,
+            ),
+        )
+        background_tasks.add_task(run_bot, transport)
+        logger.info("Bot starting in background")
+        return JSONResponse({"room_url": room_url, "token": user_token})
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=7860)
+    args, _ = parser.parse_known_args()
+    uvicorn.run(app, host=args.host, port=args.port)

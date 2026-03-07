@@ -6,3 +6,4 @@ Pillow
 uvicorn
 fastapi
 groq
+httpx
