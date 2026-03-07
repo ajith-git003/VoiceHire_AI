@@ -4,9 +4,14 @@ version = "0.1.0"
 description = "Simple chatbot built with Pipecat"
 requires-python = ">=3.10"
 dependencies = [
-    "pipecat-ai[cartesia,deepgram,google,groq,openai,runner,silero,webrtc]>=0.0.102",
+    "pipecat-ai[cartesia,daily,deepgram,google,groq,openai,runner,silero,webrtc]>=0.0.102",
     "pipecatcloud",
     "pypdf>=4.0.0",
+    "httpx>=0.27.0",
+    "python-dotenv",
+    "Pillow",
+    "uvicorn",
+    "fastapi",
 ]
 
 [dependency-groups]
